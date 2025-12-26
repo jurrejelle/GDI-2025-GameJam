@@ -7,7 +7,7 @@ public class CharacterControllerScript : MonoBehaviour
 
 {
     public float moveSpeed = 5f;
-    public float mouseSensitivity = 20f;
+    public float mouseSensitivity = 50f;
     public float gravity = -9.81f;
     public float jumpHeight = 2f;
 
@@ -28,7 +28,6 @@ public class CharacterControllerScript : MonoBehaviour
     {
         HandleMouseLook();
         HandleMovement();
-        ApplyGravity();
     }
 
     private void HandleMouseLook()
@@ -55,13 +54,15 @@ public class CharacterControllerScript : MonoBehaviour
         if (Keyboard.current.aKey.isPressed) input.x -= 1;
 
         Vector3 move = transform.right * input.x + transform.forward * input.y;
-        cc.Move(move * moveSpeed * Time.deltaTime);
         
         if (Keyboard.current.spaceKey.wasPressedThisFrame && cc.isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
         
+        ApplyGravity();
+        
+        cc.Move((move * moveSpeed + velocity) * Time.deltaTime);
     }
 
 
@@ -73,6 +74,5 @@ public class CharacterControllerScript : MonoBehaviour
         }
 
         velocity.y += gravity * Time.deltaTime;
-        cc.Move(velocity * Time.deltaTime);
     }
 }

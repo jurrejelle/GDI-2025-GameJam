@@ -274,8 +274,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterController
   moveSpeed: 5
-  mouseSensitivity: 20
-  gravity: 9.81
+  mouseSensitivity: 50
+  gravity: -9.81
   jumpHeight: 2
 --- !u!1 &109956500
 GameObject:
