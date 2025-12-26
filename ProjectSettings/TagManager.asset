@@ -7,6 +7,7 @@ TagManager:
   - World1
   - World2
   - World3
+  - Gun
   layers:
   - Default
   - TransparentFX

@@ -22,6 +22,13 @@ public class GameManager : MonoBehaviour
         { World.World1, "World1" },
         { World.World2, "World2" },
         { World.World3, "World3" }
+    };    
+    
+    public Dictionary<World, Vector3> WorldOffsets = new()
+    {
+        { World.World1, new Vector3(0f,0f,0f) },
+        { World.World2, new Vector3(500f,0f,0f) },
+        { World.World3, new Vector3(1000f,0f,0f) }
     };
     
     
@@ -41,56 +48,48 @@ public class GameManager : MonoBehaviour
 
     public void SetWorld(World world)
     {
-        _SetWorld(world);
+        _SetWorld(currentWorld, world);
     }
 
     public World nextWorld()
     {
+        World oldWorld = currentWorld;
         int currentIndex = Worlds.IndexOf(currentWorld);
         int newIndex = (currentIndex + 1) % totalWorlds;
         World newWorld = Worlds[newIndex];
-        _SetWorld(newWorld);
+        _SetWorld(oldWorld, newWorld);
         return newWorld;
     }
 
-    private void _SetWorld(World newWorld)
+    private void _SetWorld(World oldWorld, World newWorld)
     {
         Debug.Log("Setting new world to " + WorldNames[newWorld]);
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player == null)
+        {
+            throw new InvalidOperationException("Player not found");
+        }
+        CharacterController cc = player.GetComponent<CharacterController>();
+        
+        
+        var oldWorldPosition = WorldOffsets[oldWorld];
+        var newWorldPosition = WorldOffsets[newWorld];
+        var oldPlayerPosition = player.transform.position;
+        var playerPositionRelativeToZero = oldPlayerPosition - oldWorldPosition;
+        var newPlayerPosition = playerPositionRelativeToZero + newWorldPosition;
+        
+
+        // Hack to force set player position
+        cc.enabled = false;
+        player.transform.position = newPlayerPosition;
+        cc.enabled = true;
+        
         currentWorld = newWorld;
-        // TODO: Disable all non-world instances, enable all world instances
-        UpdateWorldObjects();
     }
 
     public World getWorld()
     {
         return currentWorld;
-    }
-
-    private void UpdateWorldObjects()
-    {
-        
-        // Find all objects that are a child of the "GameStage" node
-        foreach (GameObject gameObject in Resources.FindObjectsOfTypeAll<GameObject>()
-                     .Where(go => go.transform.IsChildOf(gameStageNode.transform)))
-        {
-            // Enable everything with our current world tag
-            if (gameObject.CompareTag(WorldTags[currentWorld]))
-            {
-                gameObject.SetActive(true);
-            }
-            else
-            {
-                // Disable everything without our current world tag
-                foreach (World world in Worlds)
-                {
-                    if (world == currentWorld) continue;
-                    if (gameObject.CompareTag(WorldTags[world]))
-                    {
-                        gameObject.SetActive(false);
-                    }
-                }
-            }
-        };
     }
 
 }
