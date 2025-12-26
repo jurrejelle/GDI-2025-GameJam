@@ -24,11 +24,9 @@ public class Enemy : MonoBehaviour
 
     public void takeDamage(float damage)
     {
-        Debug.Log("hit!");
         hitpoints -= damage;
         if (hitpoints <= 0)
         {
-            Debug.Log("dying!");
             Destroy(gameObject);
             EnemyManger.Get().Kill(this);
         }

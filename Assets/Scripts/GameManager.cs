@@ -7,41 +7,40 @@ using UnityEngine.UIElements;
 public class GameManager : MonoBehaviour
 {
     private static GameManager INSTANCE;
-    private World currentWorld = World.World1;
+    private World currentWorld = World.Scifi;
     private int totalWorlds = 3;
     private GameObject gameStageNode;
     public List<World> Worlds;
-    public Dictionary<World, string> WorldTags = new()
+    public readonly Dictionary<World, string> WorldTags = new()
     {
-        { World.World1, "World1" },
-        { World.World2, "World2" },
-        { World.World3, "World3" }
+        { World.Scifi, "World1" },
+        { World.Western, "World2" },
+        { World.Fantasy, "World3" }
     };    
     
-    public Dictionary<World, string> WorldNames = new()
+    public readonly Dictionary<World, string> WorldNames = new()
     {
-        { World.World1, "World1" },
-        { World.World2, "World2" },
-        { World.World3, "World3" }
+        { World.Scifi, "World1" },
+        { World.Western, "World2" },
+        { World.Fantasy, "World3" }
     };    
     
-    public Dictionary<World, Vector3> WorldOffsets = new()
+    public readonly Dictionary<World, Vector3> WorldOffsets = new()
     {
-        { World.World1, new Vector3(0f,0f,0f) },
-        { World.World2, new Vector3(500f,0f,0f) },
-        { World.World3, new Vector3(1000f,0f,0f) }
+        { World.Scifi, new Vector3(0f,0f,0f) },
+        { World.Western, new Vector3(500f,0f,0f) },
+        { World.Fantasy, new Vector3(1000f,0f,0f) }
     };
 
     public Dictionary<World, GameObject> WorldEnemies;
     
     private void Start()
     {
-        WorldEnemies = new()
-        {
-            { World.World1, Resources.Load("Prefabs/Enemy_1") as GameObject },
-            { World.World2, Resources.Load("Prefabs/Enemy_2") as GameObject },
-            { World.World3, Resources.Load("Prefabs/Enemy_3") as GameObject }
-        };    
+        WorldEnemies = new();
+        // All same enemies for now
+        WorldEnemies.Add(World.Scifi, Resources.Load("Prefabs/Enemy_1") as GameObject);
+        WorldEnemies.Add(World.Western, Resources.Load("Prefabs/Enemy_1") as GameObject);
+        WorldEnemies.Add(World.Fantasy, Resources.Load("Prefabs/Enemy_1") as GameObject);
         gameStageNode = GameObject.Find("GameStage");
         Worlds = Enum.GetValues(typeof(World))
             .Cast<World>()

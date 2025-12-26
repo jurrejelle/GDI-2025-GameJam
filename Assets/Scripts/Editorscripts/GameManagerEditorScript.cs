@@ -14,15 +14,15 @@ public class GameManagerEditorScript : Editor
 
         if(GUILayout.Button("Switch to world 1", GUILayout.Height(40)))
         {
-            script.SetWorld(World.World1);
+            script.SetWorld(World.Scifi);
         }
         if(GUILayout.Button("Switch to world 2", GUILayout.Height(40)))
         {
-            script.SetWorld(World.World1);
+            script.SetWorld(World.Scifi);
         }
         if(GUILayout.Button("Switch to world 3", GUILayout.Height(40)))
         {
-            script.SetWorld(World.World1);
+            script.SetWorld(World.Scifi);
         }
         
     }
