@@ -10,10 +10,13 @@ public class CharacterControllerScript : MonoBehaviour
     public float mouseSensitivity = 50f;
     public float gravity = -9.81f;
     public float jumpHeight = 2f;
+    public float worldSwitchCooldown = 1f;
 
     private CharacterController cc;
     private Vector3 velocity;
     private float xRotation = 0f;
+
+    private float worldLastSwitched = -100f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -28,6 +31,7 @@ public class CharacterControllerScript : MonoBehaviour
     {
         HandleMouseLook();
         HandleMovement();
+        HandleWorldSwitching();
     }
 
     private void HandleMouseLook()
@@ -66,7 +70,7 @@ public class CharacterControllerScript : MonoBehaviour
     }
 
 
-    void ApplyGravity()
+    private void ApplyGravity()
     {
         if (cc.isGrounded && velocity.y < 0)
         {
@@ -74,5 +78,15 @@ public class CharacterControllerScript : MonoBehaviour
         }
 
         velocity.y += gravity * Time.deltaTime;
+    }
+
+    private void HandleWorldSwitching()
+    {
+        if (Keyboard.current.fKey.isPressed)
+        {
+            if (Time.time <= worldLastSwitched + worldSwitchCooldown) return;
+            GameManager.Get().nextWorld();
+            worldLastSwitched = Time.time;
+        }
     }
 }
