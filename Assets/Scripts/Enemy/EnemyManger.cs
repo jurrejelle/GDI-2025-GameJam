@@ -5,8 +5,14 @@ using UnityEngine;
 public class EnemyManger : MonoBehaviour
 {
 
-    public List<GameObject> Enemies;
-    public static EnemyManger INSTANCE;
+    public Dictionary<World, List<GameObject>> EnemiesPerWorld = new()
+    {
+        { World.Scifi, new List<GameObject>() },
+        { World.Western, new List<GameObject>() },
+        { World.Fantasy, new List<GameObject>() }
+    };
+
+    private static EnemyManger INSTANCE;
 
     private Transform player;
     private Transform enemyParent;
@@ -41,22 +47,32 @@ public class EnemyManger : MonoBehaviour
 
     public void Kill(Enemy enemy)
     {
-        Enemies.Remove(enemy.gameObject);
-        
+        foreach (World world in GameManager.Get().Worlds)
+        {
+            var Enemies = EnemiesPerWorld[world];
+            Enemies.Remove(enemy.gameObject);
+        }
+
     }
     
     // Update is called once per frame
     void Update()
     {
-        if (Enemies.Count == 0)
+        foreach (World world in GameManager.Get().Worlds)
         {
-            Vector3 start = GameManager.Get().GetCurrentWorldPosition();
-            Vector2 offsetInUnitCircle = Random.insideUnitCircle * 10;
-            Vector3 offset =  new Vector3(offsetInUnitCircle.x, 1f, offsetInUnitCircle.y);
-            var newEnemy = Instantiate(GameManager.Get().GetCurrentEnemyPrefab(), start + offset, Quaternion.identity);
-            newEnemy.GetComponent<Enemy>().lookAtPlayer = GetPlayer();
-            newEnemy.transform.SetParent(GetEnemyParent(), true);
-            Enemies.Add(newEnemy);
+            var Enemies = EnemiesPerWorld[world];
+            // At least 1 enemy in every world
+            if (Enemies.Count == 0)
+            {
+                Vector3 start = GameManager.Get().WorldOffsets[world];
+                Vector2 offsetInUnitCircle = Random.insideUnitCircle * 10;
+                Vector3 offset = new Vector3(offsetInUnitCircle.x, 1f, offsetInUnitCircle.y);
+                var newEnemy = Instantiate(GameManager.Get().GetCurrentEnemyPrefab(), start + offset,
+                    Quaternion.identity);
+                newEnemy.GetComponent<Enemy>().lookAtPlayer = GetPlayer();
+                newEnemy.transform.SetParent(GetEnemyParent(), true);
+                Enemies.Add(newEnemy);
+            }
         }
     }
 }
