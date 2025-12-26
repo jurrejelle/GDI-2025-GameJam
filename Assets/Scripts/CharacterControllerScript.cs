@@ -114,7 +114,7 @@ public class CharacterControllerScript : MonoBehaviour
             //Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal)); // Impact particle
 
             // Handle Damage (e.g., call a TakeDamage() method on hit.collider.gameObject)
-            // Example: hit.collider.GetComponent<EnemyHealth>()?.TakeDamage(gunDamage);
+            hit.collider.GetComponentInParent<Enemy>()?.takeDamage(50);
 
             // Bullet Trail to hit point
             //GameObject trail = Instantiate(bulletTrailPrefab, firePoint.position, Quaternion.identity);
@@ -180,7 +180,7 @@ public class CharacterControllerScript : MonoBehaviour
         if (Keyboard.current.fKey.isPressed)
         {
             if (Time.time <= worldLastSwitched + worldSwitchCooldown) return;
-            GameManager.Get().nextWorld();
+            GameManager.Get().NextWorld();
             worldLastSwitched = Time.time;
         }
     }
