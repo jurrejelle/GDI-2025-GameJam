@@ -10,7 +10,7 @@ public class GameManagerEditorScript : Editor
         base.OnInspectorGUI();
         var script = (GameManager)target;
         GUILayout.TextArea("Does not work in editor lmao");
-        GUILayout.TextArea("Current world: " + script.getWorld());
+        GUILayout.TextArea("Current world: " + script.GetWorld());
 
         if(GUILayout.Button("Switch to world 1", GUILayout.Height(40)))
         {
