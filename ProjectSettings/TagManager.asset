@@ -8,6 +8,7 @@ TagManager:
   - World2
   - World3
   - Gun
+  - HouseTrigger
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Enemy
   - 
   - 
   - 
