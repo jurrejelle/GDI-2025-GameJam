@@ -1,41 +1,44 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using Cursor = UnityEngine.Cursor;
 
 public class GameManager : MonoBehaviour
 {
     private static GameManager INSTANCE;
     private World currentWorld = World.Scifi;
     private int totalWorlds = 3;
-    private int playerKills = 0;
-    private GameObject gameStageNode;
-    public List<World> Worlds;
-    
-    
-    public float playerHealth = 0f;
-    public float totalHealth = 100f;
-    
-    
-    private Camera _camera;
     private TextMeshProUGUI topLeftText;
-    public readonly Dictionary<World, string> WorldTags = new()
+    private Camera _camera;
+
+    public static readonly List<World> Worlds = new()
+    {
+        World.Scifi,
+        World.Western,
+        World.Fantasy
+    };
+
+    public static readonly Dictionary<World, string> WorldTags = new()
     {
         { World.Scifi, "World1" },
         { World.Western, "World2" },
         { World.Fantasy, "World3" }
     };    
     
-    public readonly Dictionary<World, string> WorldNames = new()
+    public static readonly Dictionary<World, string> WorldNames = new()
     {
         { World.Scifi, "World1" },
         { World.Western, "World2" },
         { World.Fantasy, "World3" }
     };    
     
-    public readonly Dictionary<World, Vector3> WorldOffsets = new()
+    public static readonly Dictionary<World, Vector3> WorldOffsets = new()
     {
         { World.Scifi, new Vector3(0f,0f,0f) },
         { World.Western, new Vector3(500f,0f,0f) },
@@ -44,8 +47,23 @@ public class GameManager : MonoBehaviour
 
     public Dictionary<World, GameObject> WorldEnemies;
     
+    
+    // Global game values
+    public float playerHealth = 0f;
+    public float totalHealth = 100f;
+    private int playerKills = 0;
+    public int currentWave = 1;
+    
+    // Per-wave game values
+    public int enemiesLeftToSpawnThisWave = 0;
+    public float spawnDelay = 3;
+    private int timeUntilNextWave = -1;
+    private Coroutine nextWaveRoutine;
+    
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         _camera = Camera.main;
 
         foreach( TextMeshProUGUI gui in _camera.GetComponentsInChildren<TextMeshProUGUI>() )
@@ -60,24 +78,83 @@ public class GameManager : MonoBehaviour
         WorldEnemies.Add(World.Scifi, Resources.Load("Prefabs/Enemy_1") as GameObject);
         WorldEnemies.Add(World.Western, Resources.Load("Prefabs/Enemy_1") as GameObject);
         WorldEnemies.Add(World.Fantasy, Resources.Load("Prefabs/Enemy_1") as GameObject);
-        gameStageNode = GameObject.Find("GameStage");
-        Worlds = Enum.GetValues(typeof(World))
-            .Cast<World>()
-            .ToList();
         playerHealth = totalHealth;
         playerKills = 0;
         INSTANCE = this;
+        currentWave = 1;
+        StartWave();
+    }
+
+    private void StartWave()
+    {
+        enemiesLeftToSpawnThisWave = 5 + 5 * currentWave;
+        spawnDelay = 3f - currentWave * 0.2f;
+        // Hacky fix to deal with EnemyManager not being present on wave 1 spawn
+        if(currentWave > 1) EnemyManger.Get().NextWave();
+    }
+
+    public bool ShouldStillSpawnEnemy()
+    {
+        return enemiesLeftToSpawnThisWave > 0;
+    }
+
+    public void EnemySpawned()
+    {
+        enemiesLeftToSpawnThisWave--;
+    }
+
+    public void CheckIfNextWaveShouldStart()
+    {
+        if (GetTotalEnemiesLeft() <= 0 && nextWaveRoutine == null)
+        {
+            nextWaveRoutine = StartCoroutine(StartNextWaveAfterDelay());
+        }
+    }
+
+    public int GetTotalEnemiesLeft()
+    {
+        return EnemyManger.Get().TotalEnemiesAlive() + enemiesLeftToSpawnThisWave;
+    }
+
+    private IEnumerator StartNextWaveAfterDelay()
+    {
+        for (int i = 5; i > 0; i--)
+        {
+            timeUntilNextWave = i;
+            yield return new WaitForSeconds(1f);
+        }
+        timeUntilNextWave = -1;
+        currentWave++;
+        StartWave();
+        nextWaveRoutine = null;
     }
 
     private void Update()
     {
         UpdateUI();
+        CheckRestart();
+    }
+
+    private void CheckRestart()
+    {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame || Keyboard.current.rKey.wasPressedThisFrame )
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            SceneManager.LoadScene("Mainmenu");
+        }
     }
 
     private void UpdateUI()
     {
-        topLeftText.text = "<color=green>Health: " + playerHealth + "/" + totalHealth + "</color>\n" + 
-                           "<color=red>Kills: " + playerKills + "</color>";;
+        topLeftText.text = "<color=red>Health: " + playerHealth + "/" + totalHealth + "</color>\n" + 
+                           "<color=green>Kills: " + playerKills + "</color>\n" +
+                           "<color=yellow>Wave: " + currentWave +  "</color>\n" +
+                           "<color=white>Enemies left: " + (enemiesLeftToSpawnThisWave + EnemyManger.Get().TotalEnemiesAlive())  +  "</color>\n";
+        if (timeUntilNextWave > 0)
+        {
+            topLeftText.text += "<color=green>Time until next wave: " + timeUntilNextWave + "s</color>\n";
+        }
     }
 
     public static GameManager Get()
@@ -162,6 +239,7 @@ public class GameManager : MonoBehaviour
     public void playerKilledEnemy()
     {
         playerKills++;
+        CheckIfNextWaveShouldStart();
     }
     
     

@@ -39,8 +39,6 @@ public class CharacterControllerScript : MonoBehaviour
         lineRenderer.SetPosition(0, new Vector3(0, 100, 0));
         lineRenderer.SetPosition(1, new Vector3(0, 100, 0));
         cc = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
         CacheGunFlashSpot();
     }
 

@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyManger : MonoBehaviour
 {
@@ -15,9 +16,34 @@ public class EnemyManger : MonoBehaviour
     private Dictionary<World, Transform> _goalsPerWorld;
     public Dictionary<World, Transform> GoalsPerWorld => _goalsPerWorld ??= new()
     {
-        { World.Scifi, GameObject.Find("/Goals/World_2").transform},
+        { World.Scifi, GameObject.Find("/Goals/World_1").transform},
         { World.Western, GameObject.Find("/Goals/World_2").transform},
-        { World.Fantasy, GameObject.Find("/Goals/World_2").transform},
+        { World.Fantasy, GameObject.Find("/Goals/World_3").transform},
+    };
+
+    public static readonly Dictionary<World, Dictionary<String, String>> spritesPerWorld = new()
+    {
+        {
+            World.Scifi, new()
+            {
+                { "Walking1", "Materials/Robot_Walking_1" },
+                { "Walking2", "Materials/Robot_Walking_2" },
+            }
+        },
+        {
+            World.Western, new()
+            {
+                { "Walking1", "Materials/Cowboy_Walking_1" },
+                { "Walking2", "Materials/Cowboy_Walking_2" },
+            }
+        },
+        {
+            World.Fantasy, new()
+            {
+                { "Walking1", "Materials/Cowboy_Walking_1" },
+                { "Walking2", "Materials/Cowboy_Walking_2" },
+            }
+        }
     };
 
     private static EnemyManger INSTANCE;
@@ -29,6 +55,10 @@ public class EnemyManger : MonoBehaviour
     private Transform _player;
     private Transform Player => _player ??= GameManager.Get().getPlayer().transform;
     
+    private GameManager _gameManager;
+    private GameManager GameManagerCache => _gameManager ??= GameManager.Get();
+
+    private float lastEnemySpawn = -100f;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -41,37 +71,63 @@ public class EnemyManger : MonoBehaviour
         return INSTANCE;
     }
 
+    public void NextWave()
+    {
+        lastEnemySpawn = -100f;
+    }
+
     public void Kill(Enemy enemy)
     {
-        GameManager.Get().playerKilledEnemy();
-        foreach (World world in GameManager.Get().Worlds)
+        foreach (World world in GameManager.Worlds)
         {
             var Enemies = EnemiesPerWorld[world];
             Enemies.Remove(enemy.gameObject);
         }
+        GameManagerCache.playerKilledEnemy();
 
     }
     
     // Update is called once per frame
     void Update()
     {
-        foreach (World world in GameManager.Get().Worlds)
+        
+        if (Time.time <= lastEnemySpawn + GameManagerCache.spawnDelay) return;
+        lastEnemySpawn = Time.time;
+        foreach (World world in GameManager.Worlds)
         {
-            var Enemies = EnemiesPerWorld[world];
-            // At least 1 enemy in every world
-            if (Enemies.Count == 0)
+            if (GameManagerCache.ShouldStillSpawnEnemy())
             {
-                Vector3 start = GameManager.Get().WorldOffsets[world];
-                Vector2 offsetInUnitCircle = Random.insideUnitCircle * 10;
-                Vector3 offset = new Vector3(offsetInUnitCircle.x, 1f, offsetInUnitCircle.y);
-                var newEnemyObject = Instantiate(GameManager.Get().GetCurrentEnemyPrefab(), start + offset,
-                    Quaternion.identity);
-                var newEnemy = newEnemyObject.GetComponent<Enemy>();
-                newEnemy.lookAtPlayer = Player;
-                newEnemy.goal = GoalsPerWorld[world];
-                newEnemyObject.transform.SetParent(EnemyParent, true);
-                Enemies.Add(newEnemyObject);
+                SpawnEnemy(world);
+                GameManagerCache.EnemySpawned();
             }
         }
+
+    }
+
+    private void SpawnEnemy(World world)
+    {
+        var Enemies = EnemiesPerWorld[world];
+        Vector3 start = GameManager.WorldOffsets[world];
+        Vector2 offsetInUnitCircle = Random.insideUnitCircle * 10;
+        Vector3 offset = new Vector3(offsetInUnitCircle.x, 1f, offsetInUnitCircle.y);
+        var newEnemyObject = Instantiate(GameManagerCache.GetCurrentEnemyPrefab(), start + offset,
+            Quaternion.identity);
+        var newEnemy = newEnemyObject.GetComponent<Enemy>();
+        newEnemy.lookAtPlayer = Player;
+        newEnemy.world = world;
+        newEnemy.goal = GoalsPerWorld[world];
+        newEnemyObject.transform.SetParent(EnemyParent, true);
+        Enemies.Add(newEnemyObject);
+    }
+
+    public int TotalEnemiesAlive()
+    {
+        int total = 0;
+        foreach (World world in GameManager.Worlds)
+        {
+            total += EnemiesPerWorld[world].Count;
+        }
+
+        return total;
     }
 }
