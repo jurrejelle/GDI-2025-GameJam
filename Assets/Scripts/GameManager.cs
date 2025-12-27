@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using Cursor = UnityEngine.Cursor;
 
 public class GameManager : MonoBehaviour
 {
@@ -46,6 +49,8 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         _camera = Camera.main;
 
         foreach( TextMeshProUGUI gui in _camera.GetComponentsInChildren<TextMeshProUGUI>() )
@@ -72,6 +77,17 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         UpdateUI();
+        CheckRestart();
+    }
+
+    private void CheckRestart()
+    {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            SceneManager.LoadScene("Mainmenu");
+        }
     }
 
     private void UpdateUI()

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class EnemyManger : MonoBehaviour
@@ -15,9 +14,9 @@ public class EnemyManger : MonoBehaviour
     private Dictionary<World, Transform> _goalsPerWorld;
     public Dictionary<World, Transform> GoalsPerWorld => _goalsPerWorld ??= new()
     {
-        { World.Scifi, GameObject.Find("/Goals/World_2").transform},
+        { World.Scifi, GameObject.Find("/Goals/World_1").transform},
         { World.Western, GameObject.Find("/Goals/World_2").transform},
-        { World.Fantasy, GameObject.Find("/Goals/World_2").transform},
+        { World.Fantasy, GameObject.Find("/Goals/World_3").transform},
     };
 
     private static EnemyManger INSTANCE;
@@ -58,20 +57,25 @@ public class EnemyManger : MonoBehaviour
         foreach (World world in GameManager.Get().Worlds)
         {
             var Enemies = EnemiesPerWorld[world];
-            // At least 1 enemy in every world
-            if (Enemies.Count == 0)
+            if (Enemies.Count < 2)
             {
-                Vector3 start = GameManager.Get().WorldOffsets[world];
-                Vector2 offsetInUnitCircle = Random.insideUnitCircle * 10;
-                Vector3 offset = new Vector3(offsetInUnitCircle.x, 1f, offsetInUnitCircle.y);
-                var newEnemyObject = Instantiate(GameManager.Get().GetCurrentEnemyPrefab(), start + offset,
-                    Quaternion.identity);
-                var newEnemy = newEnemyObject.GetComponent<Enemy>();
-                newEnemy.lookAtPlayer = Player;
-                newEnemy.goal = GoalsPerWorld[world];
-                newEnemyObject.transform.SetParent(EnemyParent, true);
-                Enemies.Add(newEnemyObject);
+                SpawnEnemy(world);
             }
         }
+    }
+
+    private void SpawnEnemy(World world)
+    {
+        var Enemies = EnemiesPerWorld[world];
+        Vector3 start = GameManager.Get().WorldOffsets[world];
+        Vector2 offsetInUnitCircle = Random.insideUnitCircle * 10;
+        Vector3 offset = new Vector3(offsetInUnitCircle.x, 1f, offsetInUnitCircle.y);
+        var newEnemyObject = Instantiate(GameManager.Get().GetCurrentEnemyPrefab(), start + offset,
+            Quaternion.identity);
+        var newEnemy = newEnemyObject.GetComponent<Enemy>();
+        newEnemy.lookAtPlayer = Player;
+        newEnemy.goal = GoalsPerWorld[world];
+        newEnemyObject.transform.SetParent(EnemyParent, true);
+        Enemies.Add(newEnemyObject);
     }
 }
