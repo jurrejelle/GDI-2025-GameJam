@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyManger : MonoBehaviour
 {
@@ -17,6 +19,31 @@ public class EnemyManger : MonoBehaviour
         { World.Scifi, GameObject.Find("/Goals/World_1").transform},
         { World.Western, GameObject.Find("/Goals/World_2").transform},
         { World.Fantasy, GameObject.Find("/Goals/World_3").transform},
+    };
+
+    public static readonly Dictionary<World, Dictionary<String, String>> spritesPerWorld = new()
+    {
+        {
+            World.Scifi, new()
+            {
+                { "Walking1", "Materials/Robot_Walking_1" },
+                { "Walking2", "Materials/Robot_Walking_2" },
+            }
+        },
+        {
+            World.Western, new()
+            {
+                { "Walking1", "Materials/Cowboy_Walking_1" },
+                { "Walking2", "Materials/Cowboy_Walking_2" },
+            }
+        },
+        {
+            World.Fantasy, new()
+            {
+                { "Walking1", "Materials/Cowboy_Walking_1" },
+                { "Walking2", "Materials/Cowboy_Walking_2" },
+            }
+        }
     };
 
     private static EnemyManger INSTANCE;
@@ -87,6 +114,7 @@ public class EnemyManger : MonoBehaviour
             Quaternion.identity);
         var newEnemy = newEnemyObject.GetComponent<Enemy>();
         newEnemy.lookAtPlayer = Player;
+        newEnemy.world = world;
         newEnemy.goal = GoalsPerWorld[world];
         newEnemyObject.transform.SetParent(EnemyParent, true);
         Enemies.Add(newEnemyObject);

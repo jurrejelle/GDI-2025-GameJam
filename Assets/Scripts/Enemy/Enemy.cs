@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour
 
     public Transform lookAtPlayer;
     public Transform goal;
+    public World world = World.Western;
 
     private NavMeshAgent agent;
 
@@ -28,10 +29,14 @@ public class Enemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        frame1 = Resources.Load<Material>("Materials/Cowboy_Walking_1");
-        frame2 = Resources.Load<Material>("Materials/Cowboy_Walking_2");
+        Debug.Log("World: " + world);
+        Debug.Log("Sprite: " + EnemyManger.spritesPerWorld[world]["Walking1"]);
+        frame1 = Resources.Load<Material>(EnemyManger.spritesPerWorld[world]["Walking1"]);
+        Debug.Log("Frame1: " + frame1);
+        frame2 = Resources.Load<Material>(EnemyManger.spritesPerWorld[world]["Walking2"]);
         
         spriteRenderer = GetComponentInChildren<MeshRenderer>();
+        spriteRenderer.material = frame1;
         agent = gameObject.AddComponent<NavMeshAgent>();
         agent.baseOffset = 0.5f;
         agent.speed = 1f;
