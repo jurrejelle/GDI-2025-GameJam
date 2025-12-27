@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,8 +10,17 @@ public class GameManager : MonoBehaviour
     private static GameManager INSTANCE;
     private World currentWorld = World.Scifi;
     private int totalWorlds = 3;
+    private int playerKills = 0;
     private GameObject gameStageNode;
     public List<World> Worlds;
+    
+    
+    public float playerHealth = 0f;
+    public float totalHealth = 100f;
+    
+    
+    private Camera _camera;
+    private TextMeshProUGUI topLeftText;
     public readonly Dictionary<World, string> WorldTags = new()
     {
         { World.Scifi, "World1" },
@@ -36,6 +46,15 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
+        _camera = Camera.main;
+
+        foreach( TextMeshProUGUI gui in _camera.GetComponentsInChildren<TextMeshProUGUI>() )
+        {
+            if (gui.name == "Text_TopLeft")
+            {
+                topLeftText = gui;
+            }
+        }
         WorldEnemies = new();
         // All same enemies for now
         WorldEnemies.Add(World.Scifi, Resources.Load("Prefabs/Enemy_1") as GameObject);
@@ -45,7 +64,20 @@ public class GameManager : MonoBehaviour
         Worlds = Enum.GetValues(typeof(World))
             .Cast<World>()
             .ToList();
+        playerHealth = totalHealth;
+        playerKills = 0;
         INSTANCE = this;
+    }
+
+    private void Update()
+    {
+        UpdateUI();
+    }
+
+    private void UpdateUI()
+    {
+        topLeftText.text = "<color=green>Health: " + playerHealth + "/" + totalHealth + "</color>\n" + 
+                           "<color=red>Kills: " + playerKills + "</color>";;
     }
 
     public static GameManager Get()
@@ -114,6 +146,22 @@ public class GameManager : MonoBehaviour
         }
 
         return player;
+    }
+
+    public void DamagePlayer(int amount)
+    {
+        playerHealth -= amount;
+        Debug.Log("Damage taken: " + amount);
+        Debug.Log("Player health: " + playerHealth);
+        if (playerHealth <= 0)
+        {
+            Debug.Log("You lose!");
+        }
+    }
+
+    public void playerKilledEnemy()
+    {
+        playerKills++;
     }
     
     

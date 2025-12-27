@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem.Android;
@@ -13,6 +14,9 @@ public class Enemy : MonoBehaviour
 
     private NavMeshAgent agent;
 
+    private bool isDead = false;
+    Coroutine damageRoutine = null;
+    
     private bool isGoalSet = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,6 +46,11 @@ public class Enemy : MonoBehaviour
         if (hitpoints <= 0)
         {
             Destroy(gameObject);
+            if (damageRoutine != null)
+            {
+                StopCoroutine(damageRoutine);
+                damageRoutine = null;
+            }
             EnemyManger.Get().Kill(this);
         }
     }
@@ -49,10 +58,22 @@ public class Enemy : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Collision entered");
         if (other.gameObject.CompareTag("HouseTrigger"))
         {
-            Debug.Log("YOU DIE!!!!!");
+            damageRoutine ??= StartCoroutine(DamageOverTime());
         }
     }
+    
+    
+    IEnumerator DamageOverTime()
+    {
+        while (!isDead)
+        {
+            GameManager.Get().DamagePlayer(10);
+            yield return new WaitForSeconds(1);
+        }
+
+        damageRoutine = null;
+    }
+    
 }

@@ -108,7 +108,7 @@ public class CharacterControllerScript : MonoBehaviour
         lineRenderer.SetPosition(1, end);
         //lineRenderer.enabled = true;
         RaycastHit hit;
-        if (Physics.Raycast(start, direction, out hit, 100f)) {
+        if (Physics.Raycast(start, direction, out hit, 100f, LayerMask.GetMask("Enemy"))) {
             // Hit something!
             Debug.Log("Hit: " + hit.transform.name);
             //Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal)); // Impact particle

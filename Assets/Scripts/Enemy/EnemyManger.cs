@@ -43,6 +43,7 @@ public class EnemyManger : MonoBehaviour
 
     public void Kill(Enemy enemy)
     {
+        GameManager.Get().playerKilledEnemy();
         foreach (World world in GameManager.Get().Worlds)
         {
             var Enemies = EnemiesPerWorld[world];
