@@ -25,6 +25,7 @@ public class Enemy : MonoBehaviour
     
     private float lastSwap = -100f;
     private float swapDelay = 0.5f;
+    private bool isPhantomHit = false;
 
 
     
@@ -61,6 +62,13 @@ public class Enemy : MonoBehaviour
         {
             spriteRenderer.material = frame1;
         }
+
+        if (isPhantomHit)
+        {
+            Color color = spriteRenderer.material.color;
+            color.a = 0.6f;
+            spriteRenderer.material.color = color;
+        }
         lastSwap = Time.time;
     }
 
@@ -80,9 +88,14 @@ public class Enemy : MonoBehaviour
     }
     public void takeDamage(float damage)
     {
+        AudioSource.PlayClipAtPoint(MusicManager.Get().enemy_hit, transform.position);
         if (isPhantom)
         {
             PoofParticles.SpawnWhite(transform.position);
+            isPhantomHit = true;
+            Color color = spriteRenderer.material.color;
+            color.a = 0.6f;
+            spriteRenderer.material.color = color;
             // TODO: Make visually phantom when shot
             return;
         }
@@ -115,6 +128,7 @@ public class Enemy : MonoBehaviour
     {
         while (!isDead)
         {
+            AudioSource.PlayClipAtPoint(MusicManager.Get().house_damage, transform.position);
             GameManager.Get().DamagePlayer(10);
             yield return new WaitForSeconds(1);
         }
