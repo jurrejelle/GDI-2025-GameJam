@@ -5,14 +5,22 @@ using UnityEngine;
 
 public class MusicManager : MonoBehaviour
 {
-    public static MusicManager instance;
+    private static MusicManager instance;
 
     private AudioSource introSource;
     private AudioSource loopSource;
 
     private AudioClip intro;
     private AudioClip loop;
+    public AudioClip weapon_shoot;
+    public AudioClip enemy_hit;
+    public AudioClip house_damage;
 
+
+    public static MusicManager Get()
+    {
+        return instance;
+    }
     private void Awake()
     {
         if (instance != null)
@@ -40,6 +48,16 @@ public class MusicManager : MonoBehaviour
     {
         intro = Resources.Load<AudioClip>("Sound/Music/snd_main_intro");
         loop = Resources.Load<AudioClip>("Sound/Music/snd_main_loop");
+        weapon_shoot = Resources.Load<AudioClip>("Sound/Sfx/Weapon_Shoot");
+        enemy_hit = Resources.Load<AudioClip>("Sound/Sfx/Enemy_Hit");
+        house_damage = Resources.Load<AudioClip>("Sound/Sfx/Weapon_Shoot");
+        
+        
+        intro.LoadAudioData();
+        loop.LoadAudioData();
+        weapon_shoot.LoadAudioData();
+        enemy_hit.LoadAudioData();
+        house_damage.LoadAudioData();
 
         PlayIntroThenLoop();
     }

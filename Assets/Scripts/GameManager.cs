@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
     
     
     // Global game values
-    public float playerHealth = 0f;
+    public float playerHealth;
     public float totalHealth = 100f;
     private int playerKills = 0;
     public int currentWave = 1;
@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour
 
     private void StartWave()
     {
-        enemiesLeftToSpawnThisWave = 5 + 3 * currentWave;
+        enemiesLeftToSpawnThisWave = 10 + 3 * currentWave;
         spawnDelay = 4f - currentWave * 0.2f;
     }
 
