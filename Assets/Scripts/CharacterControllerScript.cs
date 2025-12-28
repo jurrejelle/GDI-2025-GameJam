@@ -82,18 +82,20 @@ public class CharacterControllerScript : MonoBehaviour
         {
             currentGun = (currentGun + 1) % totalGuns;
             GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+            imageState = 0;
         }
         else if (scroll < 0) // Scroll down
         {
             currentGun--;
             if (currentGun < 0) currentGun = totalGuns - 1;
             GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+            imageState = 0;
         }
 
     }
     private void HandleGun()
     {
-        if (Time.time > lastShot + flashDuration[currentGun] / 2 && imageState == 1) ;
+        if (Time.time > lastShot + flashDuration[currentGun] / 2 && imageState == 1)
         {
             // Flash effects
             GunRenderer.sharedMaterial = gunMaterialsShooting2[currentGun];
