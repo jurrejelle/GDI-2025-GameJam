@@ -80,6 +80,7 @@ public class Enemy : MonoBehaviour
     }
     public void takeDamage(float damage)
     {
+        AudioSource.PlayClipAtPoint(MusicManager.Get().enemy_hit, transform.position);
         if (isPhantom)
         {
             PoofParticles.SpawnWhite(transform.position);
@@ -115,6 +116,7 @@ public class Enemy : MonoBehaviour
     {
         while (!isDead)
         {
+            AudioSource.PlayClipAtPoint(MusicManager.Get().house_damage, transform.position);
             GameManager.Get().DamagePlayer(10);
             yield return new WaitForSeconds(1);
         }
