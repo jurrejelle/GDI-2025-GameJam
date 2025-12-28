@@ -131,7 +131,7 @@ public class CharacterControllerScript : MonoBehaviour
     
     private void fireGun()
     {
-        AudioSource.PlayClipAtPoint(MusicManager.Get().weapon_shoot, _camera.transform.position);
+        MusicManager.PlayClipGlobal(MusicManager.Get().weapon_shoot);
         if (GunRenderer.material.name != gunMaterialsShooting[currentGun].name)
         {
             GunRenderer.sharedMaterial = gunMaterialsShooting[currentGun];

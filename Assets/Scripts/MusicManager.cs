@@ -41,7 +41,7 @@ public class MusicManager : MonoBehaviour
 
         introSource.loop = false;
         loopSource.loop = true;
-        SetVolume(0.3f);
+        SetVolume(0.2f);
     }
 
     private void Start()
@@ -50,7 +50,7 @@ public class MusicManager : MonoBehaviour
         loop = Resources.Load<AudioClip>("Sound/Music/snd_main_loop");
         weapon_shoot = Resources.Load<AudioClip>("Sound/Sfx/Weapon_Shoot");
         enemy_hit = Resources.Load<AudioClip>("Sound/Sfx/Enemy_Hit");
-        house_damage = Resources.Load<AudioClip>("Sound/Sfx/Weapon_Shoot");
+        house_damage = Resources.Load<AudioClip>("Sound/Sfx/House_Damage");
         
         
         intro.LoadAudioData();
@@ -94,4 +94,18 @@ public class MusicManager : MonoBehaviour
         introSource.volume = v;
         loopSource.volume = v;
     }
+    public static void PlayClipGlobal(AudioClip clip, float volume = 1f)
+    {
+        GameObject go = new GameObject("TempAudio");
+        go.hideFlags = HideFlags.DontSave;
+        
+        AudioSource source = go.AddComponent<AudioSource>();
+        source.clip = clip;
+        source.volume = volume;
+        source.spatialBlend = 0f; // Global
+        source.Play();
+        
+        Destroy(go, clip.length);
+    }
+    
 }
