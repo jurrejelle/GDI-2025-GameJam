@@ -108,7 +108,7 @@ public class CharacterControllerScript : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(start, direction, out hit, 100f, LayerMask.GetMask("Enemy"))) {
             // Hit something!
-            Debug.Log("Hit: " + hit.transform.name);
+            //Debug.Log("Hit: " + hit.transform.name);
             //Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal)); // Impact particle
 
             // Handle Damage (e.g., call a TakeDamage() method on hit.collider.gameObject)
@@ -119,7 +119,7 @@ public class CharacterControllerScript : MonoBehaviour
 
             // Set trail to go from firePoint.position to hit.point (using its script/LineRenderer)
         } else {
-            Debug.Log("Miss");
+            //Debug.Log("Miss");
             // Hit nothing (skybox/empty space)
             // Bullet Trail to max range
             // GameObject trail = Instantiate(bulletTrailPrefab, firePoint.position, Quaternion.identity);

@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace UI
 {
-    public class ExitButton : MonoBehaviour
+    public class ExitToMainMenuButton : MonoBehaviour
     {
         private Button button;
 
@@ -20,11 +21,7 @@ namespace UI
 
         private static void OnButtonClick()
         {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
+            SceneManager.LoadScene("MainMenu");
         }
     }
 }

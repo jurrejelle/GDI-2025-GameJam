@@ -29,10 +29,7 @@ public class Enemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Debug.Log("World: " + world);
-        Debug.Log("Sprite: " + EnemyManger.spritesPerWorld[world]["Walking1"]);
         frame1 = Resources.Load<Material>(EnemyManger.spritesPerWorld[world]["Walking1"]);
-        Debug.Log("Frame1: " + frame1);
         frame2 = Resources.Load<Material>(EnemyManger.spritesPerWorld[world]["Walking2"]);
         
         spriteRenderer = GetComponentInChildren<MeshRenderer>();
