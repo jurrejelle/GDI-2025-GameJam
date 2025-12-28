@@ -193,6 +193,16 @@ public class GameManager : MonoBehaviour
         _SetWorld(oldWorld, newWorld);
         return newWorld;
     }
+    
+    public World PreviousWorld()
+    {
+        World oldWorld = currentWorld;
+        int currentIndex = Worlds.IndexOf(currentWorld);
+        int newIndex = (currentIndex + -1 + totalWorlds) % totalWorlds;
+        World newWorld = Worlds[newIndex];
+        _SetWorld(oldWorld, newWorld);
+        return newWorld;
+    }
 
     private void _SetWorld(World oldWorld, World newWorld)
     {

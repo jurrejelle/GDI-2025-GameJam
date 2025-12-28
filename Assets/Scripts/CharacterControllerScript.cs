@@ -178,6 +178,12 @@ public class CharacterControllerScript : MonoBehaviour
         if (Keyboard.current.fKey.isPressed)
         {
             if (Time.time <= worldLastSwitched + worldSwitchCooldown) return;
+            GameManager.Get().PreviousWorld();
+            worldLastSwitched = Time.time;
+        }
+        if (Keyboard.current.gKey.isPressed)
+        {
+            if (Time.time <= worldLastSwitched + worldSwitchCooldown) return;
             GameManager.Get().NextWorld();
             worldLastSwitched = Time.time;
         }

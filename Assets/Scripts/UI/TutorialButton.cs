@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public class StartButton : MonoBehaviour
+    public class TutorialButton : MonoBehaviour
     {
         private Button button;
 
@@ -21,7 +21,7 @@ namespace UI
 
         private static void OnButtonClick()
         {
-            SceneManager.LoadScene("Tutorial");
+            SceneManager.LoadScene("Level");
         }
     }
 }
