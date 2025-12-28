@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Mono.Cecil;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 
 [RequireComponent(typeof(CharacterController))]
@@ -36,7 +37,11 @@ public class CharacterControllerScript : MonoBehaviour
     private MeshRenderer _gunRenderer;
     private MeshRenderer GunRenderer => _gunRenderer ??= GameObject.Find("Gun").GetComponent<MeshRenderer>();
     
-
+    // Crosshair stuff
+    private Sprite[] crosshairs;
+    private Image _crosshairImage;
+    private Image CrosshairImage => _crosshairImage ??= GameObject.Find("Crosshair").GetComponent<Image>();
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
@@ -62,6 +67,13 @@ public class CharacterControllerScript : MonoBehaviour
 
         GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
 
+        crosshairs = new[]
+        {
+            Resources.Load<Sprite>("Images/Crosshairs/Scifi"),
+            Resources.Load<Sprite>("Images/Crosshairs/Fantasy"),
+            Resources.Load<Sprite>("Images/Crosshairs/Western"),
+        };
+        CrosshairImage.sprite = crosshairs[0];
     }
 
     // Update is called once per frame
@@ -82,6 +94,7 @@ public class CharacterControllerScript : MonoBehaviour
         {
             currentGun = (currentGun + 1) % totalGuns;
             GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+            CrosshairImage.sprite = crosshairs[currentGun];
             imageState = 0;
         }
         else if (scroll < 0) // Scroll down
@@ -89,6 +102,7 @@ public class CharacterControllerScript : MonoBehaviour
             currentGun--;
             if (currentGun < 0) currentGun = totalGuns - 1;
             GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+            CrosshairImage.sprite = crosshairs[currentGun];
             imageState = 0;
         }
 
@@ -203,13 +217,13 @@ public class CharacterControllerScript : MonoBehaviour
         if (Keyboard.current.fKey.isPressed)
         {
             if (Time.time <= worldLastSwitched + worldSwitchCooldown) return;
-            GameManager.Get().PreviousWorld();
+            var currentWorld = GameManager.Get().PreviousWorld();
             worldLastSwitched = Time.time;
         }
         if (Keyboard.current.gKey.isPressed)
         {
             if (Time.time <= worldLastSwitched + worldSwitchCooldown) return;
-            GameManager.Get().NextWorld();
+            var currentWorld = GameManager.Get().NextWorld();
             worldLastSwitched = Time.time;
         }
     }
