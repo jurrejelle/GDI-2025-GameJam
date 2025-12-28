@@ -70,8 +70,8 @@ public class CharacterControllerScript : MonoBehaviour
         crosshairs = new[]
         {
             Resources.Load<Sprite>("Images/Crosshairs/Scifi"),
-            Resources.Load<Sprite>("Images/Crosshairs/Fantasy"),
             Resources.Load<Sprite>("Images/Crosshairs/Western"),
+            Resources.Load<Sprite>("Images/Crosshairs/Fantasy"),
         };
         CrosshairImage.sprite = crosshairs[0];
     }
