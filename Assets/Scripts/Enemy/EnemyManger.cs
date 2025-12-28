@@ -40,8 +40,8 @@ public class EnemyManger : MonoBehaviour
         {
             World.Fantasy, new()
             {
-                { "Walking1", "Materials/Cowboy_Walking_1" },
-                { "Walking2", "Materials/Cowboy_Walking_2" },
+                { "Walking1", "Materials/Ogre_Walking_1" },
+                { "Walking2", "Materials/Ogre_Walking_2" },
             }
         }
     };
