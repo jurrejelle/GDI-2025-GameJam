@@ -66,7 +66,7 @@ public static class PoofParticles
         // Renderer setup (billboard) + particle shader
         var psr = go.GetComponent<ParticleSystemRenderer>();
         psr.renderMode = ParticleSystemRenderMode.Billboard;
-        var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+        var shader = Shader.Find("Particles/Standard Unlit");
         var mat = new Material(shader);
         psr.sharedMaterial = mat;
         
@@ -137,7 +137,7 @@ public static class PoofParticles
         // Renderer setup (billboard) + particle shader
         var psr = go.GetComponent<ParticleSystemRenderer>();
         psr.renderMode = ParticleSystemRenderMode.Billboard;
-        var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+        var shader = Shader.Find("Particles/Standard Unlit");
         var mat = new Material(shader);
         psr.sharedMaterial = mat;
         
