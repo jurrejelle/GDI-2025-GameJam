@@ -100,8 +100,6 @@ public class GameManager : MonoBehaviour
     {
         enemiesLeftToSpawnThisWave = 5 + 3 * currentWave;
         spawnDelay = 4f - currentWave * 0.2f;
-        // Hacky fix to deal with EnemyManager not being present on wave 1 spawn
-        if(currentWave > 1) EnemyManger.Get().NextWave();
     }
 
     public bool  ShouldSpawnPhantom()
@@ -134,6 +132,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartNextWaveAfterDelay()
     {
+        EnemyManger.Get().NextWave();
         for (int i = 5; i > 0; i--)
         {
             timeUntilNextWave = i;
