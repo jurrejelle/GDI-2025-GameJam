@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,77 +21,96 @@ public class CharacterControllerScript : MonoBehaviour
 
     private float worldLastSwitched = -100f;
     private float lastShot = -100f;
-    private float flashDuration = 0.1f;
-    private LineRenderer lineRenderer;
     private Camera _camera;
-    private GameObject gunFlashSpot;
+    
+    // Gun stuff
+    private int currentGun = 0;
+    private int totalGuns = 3;
+    private float[] flashDuration = { 0.1f, 0.1f, 0.2f };
+    private float[] gunCooldowns = { 0.20f, 0.33f, 1.0f }; //bopper, gun, wand 
+    private float[] gunDamages = { 20f, 50f, 100f };
+    private int imageState = 0;
+    private List<Material> gunMaterialsRest = new();
+    private List<Material> gunMaterialsShooting = new();
+    private List<Material> gunMaterialsShooting2 = new();
+    private MeshRenderer _gunRenderer;
+    private MeshRenderer GunRenderer => _gunRenderer ??= GameObject.Find("Gun").GetComponent<MeshRenderer>();
+    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
         _camera = Camera.main;
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startColor = Color.yellow;
-        lineRenderer.endColor = Color.yellow;
-        lineRenderer.startWidth = 0.01f;
-        lineRenderer.endWidth = 0.01f;
-        lineRenderer.positionCount = 2;
-        
-        lineRenderer.SetPosition(0, new Vector3(0, 100, 0));
-        lineRenderer.SetPosition(1, new Vector3(0, 100, 0));
         cc = GetComponent<CharacterController>();
-        CacheGunFlashSpot();
+        foreach (String name in new List<String>{"Bopper", "Gun", "Wand"})
+        {
+            var texture = Resources.Load<Texture2D>("Images/Weapons/" + name + "_Rest");
+            Material mat = new Material(Shader.Find("Sprites/Default"));
+            mat.mainTexture = texture;
+            gunMaterialsRest.Add(mat);
+            
+            var texture1 = Resources.Load<Texture2D>("Images/Weapons/" + name + "_Shoot_1");
+            Material mat1 = new Material(Shader.Find("Sprites/Default"));
+            mat1.mainTexture = texture1;
+            gunMaterialsShooting.Add(mat1);
+            
+            var texture2 = Resources.Load<Texture2D>("Images/Weapons/" + name + "_Shoot_2");
+            Material mat2 = new Material(Shader.Find("Sprites/Default"));
+            mat2.mainTexture = texture2;
+            gunMaterialsShooting2.Add(mat2);
+        }
+
+        GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+
     }
 
     // Update is called once per frame
     private void Update()
     {
+        HandleGunSwitch();
         HandleGun();
         HandleMouseLook();
         HandleMovement();
         HandleWorldSwitching();
     }
-
-    private void CacheGunFlashSpot()
+    
+    private void HandleGunSwitch()
     {
-        for (int i = 0; i < _camera.transform.childCount; i++)
-        {
-            var child = _camera.transform.GetChild(i);
-            if (child.CompareTag("Gun"))
-            {
-                for (int j = 0; j < child.childCount; j++)
-                {
-                    var gunChild = child.GetChild(j);
-                    if (gunChild.name.Equals("ParticleSpot"))
-                    {
-                        gunFlashSpot = gunChild.gameObject;
-                        return;
-                    }
-                }
-            }
-        }
-        gunFlashSpot.SetActive(true);
-        Material yellowMat = new Material(Shader.Find("Unlit/Color"));
-        yellowMat.color = Color.yellow;
-        gunFlashSpot.GetComponent<MeshRenderer>().material = yellowMat;
-        gunFlashSpot.SetActive(false);
-    }
+        float scroll = Mouse.current.scroll.ReadValue().y;
 
+        if (scroll > 0) // Scroll up
+        {
+            currentGun = (currentGun + 1) % totalGuns;
+            GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+            imageState = 0;
+        }
+        else if (scroll < 0) // Scroll down
+        {
+            currentGun--;
+            if (currentGun < 0) currentGun = totalGuns - 1;
+            GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+            imageState = 0;
+        }
+
+    }
     private void HandleGun()
     {
-        if (Time.time > lastShot + flashDuration)
+        if (Time.time > lastShot + flashDuration[currentGun] / 2 && imageState == 1)
         {
-            gunFlashSpot.SetActive(false);
+            // Flash effects
+            GunRenderer.sharedMaterial = gunMaterialsShooting2[currentGun];
+            imageState = 2;
+        }        
+        if (Time.time > lastShot + flashDuration[currentGun] && imageState == 2)
+        {
+            // Flash effects
+            GunRenderer.sharedMaterial = gunMaterialsRest[currentGun];
+            imageState = 0;
         }
 
-        lineRenderer.enabled = false;
-        // Dynamically calculate gunCooldown here?
-        // in seconds
-        float gunCooldown = 0.33f;
         if (Mouse.current.leftButton.isPressed)
         {
-            if (Time.time <= lastShot + gunCooldown) return;
+            if (Time.time <= lastShot + gunCooldowns[currentGun]) return;
             fireGun();
             lastShot = Time.time;
         }
@@ -97,13 +118,17 @@ public class CharacterControllerScript : MonoBehaviour
     
     private void fireGun()
     {
-        gunFlashSpot.SetActive(true);
+        AudioSource.PlayClipAtPoint(MusicManager.Get().weapon_shoot, _camera.transform.position);
+        if (GunRenderer.material.name != gunMaterialsShooting[currentGun].name)
+        {
+            GunRenderer.sharedMaterial = gunMaterialsShooting[currentGun];
+            imageState = 1;
+        }
+
+        // Enable flash effects
         Vector3 start = _camera.transform.position;
         Vector3 direction = _camera.transform.forward;
         Vector3 end = start + 100f * direction;
-        
-        lineRenderer.SetPosition(0, start);
-        lineRenderer.SetPosition(1, end);
         //lineRenderer.enabled = true;
         RaycastHit hit;
         if (Physics.Raycast(start, direction, out hit, 100f, LayerMask.GetMask("Enemy"))) {
@@ -112,7 +137,7 @@ public class CharacterControllerScript : MonoBehaviour
             //Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal)); // Impact particle
 
             // Handle Damage (e.g., call a TakeDamage() method on hit.collider.gameObject)
-            hit.collider.GetComponentInParent<Enemy>()?.takeDamage(50);
+            hit.collider.GetComponentInParent<Enemy>()?.takeDamage(gunDamages[currentGun]);
 
             // Bullet Trail to hit point
             //GameObject trail = Instantiate(bulletTrailPrefab, firePoint.position, Quaternion.identity);
