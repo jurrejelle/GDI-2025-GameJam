@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using Cursor = UnityEngine.Cursor;
+using Random = System.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -48,8 +49,6 @@ public class GameManager : MonoBehaviour
         { World.Western, new Vector3(500f,0f,0f) },
         { World.Fantasy, new Vector3(1000f,0f,0f) }
     };
-
-    public Dictionary<World, GameObject> WorldEnemies;
     
     
     // Global game values
@@ -90,12 +89,6 @@ public class GameManager : MonoBehaviour
                 gameOverCanvas = gui.gameObject;
             }
         }
-
-        WorldEnemies = new();
-        // All same enemies for now
-        WorldEnemies.Add(World.Scifi, Resources.Load("Prefabs/Enemy_1") as GameObject);
-        WorldEnemies.Add(World.Western, Resources.Load("Prefabs/Enemy_1") as GameObject);
-        WorldEnemies.Add(World.Fantasy, Resources.Load("Prefabs/Enemy_1") as GameObject);
         playerHealth = totalHealth;
         playerKills = 0;
         INSTANCE = this;
@@ -105,10 +98,16 @@ public class GameManager : MonoBehaviour
 
     private void StartWave()
     {
-        enemiesLeftToSpawnThisWave = 5 + 5 * currentWave;
-        spawnDelay = 3f - currentWave * 0.2f;
+        enemiesLeftToSpawnThisWave = 5 + 3 * currentWave;
+        spawnDelay = 4f - currentWave * 0.2f;
         // Hacky fix to deal with EnemyManager not being present on wave 1 spawn
         if(currentWave > 1) EnemyManger.Get().NextWave();
+    }
+
+    public bool  ShouldSpawnPhantom()
+    {
+        // TODO: change to 3+
+        return currentWave >= 3 && (new Random()).NextDouble() >= 0.25;
     }
     public bool ShouldStillSpawnEnemy()
     {
@@ -230,14 +229,15 @@ public class GameManager : MonoBehaviour
         return currentWorld;
     }
 
+    public World GetRandomWorld()
+    {
+        return Worlds[(int) ((new Random()).NextDouble()*100 % totalWorlds)];
+        
+    }
+
     public Vector3 GetCurrentWorldPosition()
     {
         return WorldOffsets[currentWorld];
-    }
-
-    public GameObject GetCurrentEnemyPrefab()
-    {
-        return WorldEnemies[currentWorld];
     }
 
     public GameObject getPlayer()

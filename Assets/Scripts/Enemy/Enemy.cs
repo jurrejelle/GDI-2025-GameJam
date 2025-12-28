@@ -12,7 +12,9 @@ public class Enemy : MonoBehaviour
     public Transform lookAtPlayer;
     public Transform goal;
     public World world = World.Western;
-
+    
+    public bool isPhantom = false;
+    
     private NavMeshAgent agent;
 
     private bool isDead = false;
@@ -22,7 +24,8 @@ public class Enemy : MonoBehaviour
     private Material frame2;
     
     private float lastSwap = -100f;
-    private float swapDelay = 0.25f;
+    private float swapDelay = 0.5f;
+
 
     
     private bool isGoalSet = false;
@@ -77,7 +80,14 @@ public class Enemy : MonoBehaviour
     }
     public void takeDamage(float damage)
     {
+        if (isPhantom)
+        {
+            PoofParticles.SpawnWhite(transform.position);
+            // TODO: Make visually phantom when shot
+            return;
+        }
         hitpoints -= damage;
+        PoofParticles.SpawnRed(transform.position);
         if (hitpoints <= 0)
         {
             Destroy(gameObject);
@@ -95,6 +105,7 @@ public class Enemy : MonoBehaviour
     {
         if (other.gameObject.CompareTag("HouseTrigger"))
         {
+            if (isPhantom) return;
             damageRoutine ??= StartCoroutine(DamageOverTime());
         }
     }
