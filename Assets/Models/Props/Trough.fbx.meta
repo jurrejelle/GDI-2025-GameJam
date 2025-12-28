@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f093eaf3f70ea5640859d76d7ad0b1f2
+guid: 304a996e575b5df4297b2c4c099d002e
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,8 +7,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Sci_fi_Fence
-    second: {fileID: 2100000, guid: 3971a8f249328a940bf6e4563233d452, type: 2}
+      name: Props
+    second: {fileID: 2100000, guid: 443bce13d97979146be5585e15f2cdb1, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
