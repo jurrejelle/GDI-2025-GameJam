@@ -1,12 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 using Cursor = UnityEngine.Cursor;
 using Random = System.Random;
 
@@ -21,6 +19,7 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI topLeftText;
     private GameObject gameOverCanvas;
     private TextMeshProUGUI gameOverText;
+    private GameObject waveClearCanvas;
 
     public static readonly List<World> Worlds = new()
     {
@@ -88,6 +87,10 @@ public class GameManager : MonoBehaviour
             {
                 gameOverCanvas = gui.gameObject;
             }
+            if (gui.gameObject.name == "WaveClear")
+            {
+                waveClearCanvas = gui.gameObject;
+            }
         }
         playerHealth = totalHealth;
         playerKills = 0;
@@ -132,12 +135,14 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartNextWaveAfterDelay()
     {
+        waveClearCanvas.SetActive(true);
         EnemyManger.Get().NextWave();
         for (int i = 5; i > 0; i--)
         {
             timeUntilNextWave = i;
             yield return new WaitForSeconds(1f);
         }
+        waveClearCanvas.SetActive(false);
         timeUntilNextWave = -1;
         currentWave++;
         StartWave();
