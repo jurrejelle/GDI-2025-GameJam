@@ -1,25 +1,27 @@
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class StartButton : MonoBehaviour
+namespace UI
 {
-    private Button button;
-
-    private void Awake()
+    public class StartButton : MonoBehaviour
     {
-        button = GetComponent<Button>();
-        button.onClick.AddListener(OnButtonClick);
-    }
+        private Button button;
 
-    private void OnDestroy()
-    {
-        button.onClick.RemoveListener(OnButtonClick);
-    }
+        private void Awake()
+        {
+            button = GetComponent<Button>();
+            button.onClick.AddListener(OnButtonClick);
+        }
 
-    private static void OnButtonClick()
-    {
-        SceneManager.LoadScene("Level");
+        private void OnDestroy()
+        {
+            button.onClick.RemoveListener(OnButtonClick);
+        }
+
+        private static void OnButtonClick()
+        {
+            SceneManager.LoadScene("Tutorial");
+        }
     }
 }

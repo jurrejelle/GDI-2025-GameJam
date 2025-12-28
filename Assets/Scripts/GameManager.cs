@@ -14,8 +14,12 @@ public class GameManager : MonoBehaviour
     private static GameManager INSTANCE;
     private World currentWorld = World.Scifi;
     private int totalWorlds = 3;
-    private TextMeshProUGUI topLeftText;
     private Camera _camera;
+    
+    // Cached UI elements
+    private TextMeshProUGUI topLeftText;
+    private GameObject gameOverCanvas;
+    private TextMeshProUGUI gameOverText;
 
     public static readonly List<World> Worlds = new()
     {
@@ -66,13 +70,27 @@ public class GameManager : MonoBehaviour
         Cursor.visible = false;
         _camera = Camera.main;
 
-        foreach( TextMeshProUGUI gui in _camera.GetComponentsInChildren<TextMeshProUGUI>() )
+        foreach( TextMeshProUGUI gui in _camera.GetComponentsInChildren<TextMeshProUGUI>(true) )
         {
             if (gui.name == "Text_TopLeft")
             {
                 topLeftText = gui;
             }
+
+            if (gui.name == "Score")
+            {
+                gameOverText = gui;
+            }
         }
+
+        foreach (Canvas gui in _camera.GetComponentsInChildren<Canvas>(true))
+        {
+            if (gui.gameObject.name == "GameOver")
+            {
+                gameOverCanvas = gui.gameObject;
+            }
+        }
+
         WorldEnemies = new();
         // All same enemies for now
         WorldEnemies.Add(World.Scifi, Resources.Load("Prefabs/Enemy_1") as GameObject);
@@ -92,7 +110,6 @@ public class GameManager : MonoBehaviour
         // Hacky fix to deal with EnemyManager not being present on wave 1 spawn
         if(currentWave > 1) EnemyManger.Get().NextWave();
     }
-
     public bool ShouldStillSpawnEnemy()
     {
         return enemiesLeftToSpawnThisWave > 0;
@@ -141,7 +158,7 @@ public class GameManager : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            SceneManager.LoadScene("Mainmenu");
+            SceneManager.LoadScene("MainMenu");
         }
     }
 
@@ -176,10 +193,19 @@ public class GameManager : MonoBehaviour
         _SetWorld(oldWorld, newWorld);
         return newWorld;
     }
+    
+    public World PreviousWorld()
+    {
+        World oldWorld = currentWorld;
+        int currentIndex = Worlds.IndexOf(currentWorld);
+        int newIndex = (currentIndex + -1 + totalWorlds) % totalWorlds;
+        World newWorld = Worlds[newIndex];
+        _SetWorld(oldWorld, newWorld);
+        return newWorld;
+    }
 
     private void _SetWorld(World oldWorld, World newWorld)
     {
-        Debug.Log("Setting new world to " + WorldNames[newWorld]);
         var player = getPlayer();
         CharacterController cc = player.GetComponent<CharacterController>();
         
@@ -228,14 +254,22 @@ public class GameManager : MonoBehaviour
     public void DamagePlayer(int amount)
     {
         playerHealth -= amount;
-        Debug.Log("Damage taken: " + amount);
-        Debug.Log("Player health: " + playerHealth);
         if (playerHealth <= 0)
         {
-            Debug.Log("You lose!");
+            PlayerLoses();
         }
     }
 
+
+    private void PlayerLoses()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        gameOverCanvas.SetActive(true);
+        gameOverText.text = "<color=red>You Lose!</color>\n" +
+                            "<color=yellow>You got to wave " + currentWave + ".</color>\n" +
+                            "<color=yellow>Your score was " + playerKills + ".</color>\n";
+    }
     public void playerKilledEnemy()
     {
         playerKills++;
