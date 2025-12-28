@@ -6,11 +6,11 @@ using Random = UnityEngine.Random;
 public class EnemyManger : MonoBehaviour
 {
 
-    public Dictionary<World, List<GameObject>> EnemiesPerWorld = new()
+    public Dictionary<World, List<Enemy>> EnemiesPerWorld = new()
     {
-        { World.Scifi, new List<GameObject>() },
-        { World.Western, new List<GameObject>() },
-        { World.Fantasy, new List<GameObject>() }
+        { World.Scifi, new List<Enemy>() },
+        { World.Western, new List<Enemy>() },
+        { World.Fantasy, new List<Enemy>() }
     };
 
     private Dictionary<World, Transform> _goalsPerWorld;
@@ -59,10 +59,12 @@ public class EnemyManger : MonoBehaviour
     private GameManager GameManagerCache => _gameManager ??= GameManager.Get();
 
     private float lastEnemySpawn = -100f;
+    private GameObject EnemyPrefab;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        EnemyPrefab = Resources.Load("Prefabs/Enemy_1") as GameObject;
         INSTANCE = this;
     }
 
@@ -74,6 +76,16 @@ public class EnemyManger : MonoBehaviour
     public void NextWave()
     {
         lastEnemySpawn = -100f;
+        
+        foreach (World world in GameManager.Worlds)
+        {
+            var Enemies = EnemiesPerWorld[world];
+            foreach (Enemy enemy in Enemies)
+            {
+                Destroy(enemy.gameObject);
+            }
+            Enemies.Clear();
+        }
     }
 
     public void Kill(Enemy enemy)
@@ -81,7 +93,7 @@ public class EnemyManger : MonoBehaviour
         foreach (World world in GameManager.Worlds)
         {
             var Enemies = EnemiesPerWorld[world];
-            Enemies.Remove(enemy.gameObject);
+            Enemies.Remove(enemy);
         }
         GameManagerCache.playerKilledEnemy();
 
@@ -97,27 +109,40 @@ public class EnemyManger : MonoBehaviour
         {
             if (GameManagerCache.ShouldStillSpawnEnemy())
             {
-                SpawnEnemy(world);
+                if (GameManagerCache.ShouldSpawnPhantom())
+                {
+                    SpawnEnemy(world, true);
+                } 
+                SpawnEnemy(world, false);
                 GameManagerCache.EnemySpawned();
             }
         }
 
     }
 
-    private void SpawnEnemy(World world)
+    private void SpawnEnemy(World world, bool isPhantom)
     {
         var Enemies = EnemiesPerWorld[world];
-        Vector3 start = GameManager.WorldOffsets[world];
-        Vector2 offsetInUnitCircle = Random.insideUnitCircle * 10;
-        Vector3 offset = new Vector3(offsetInUnitCircle.x, 1f, offsetInUnitCircle.y);
-        var newEnemyObject = Instantiate(GameManagerCache.GetCurrentEnemyPrefab(), start + offset,
+        World skinWorld = world;
+        World worldToSpawnIn = world;
+        if (isPhantom)
+        {
+            worldToSpawnIn = GameManagerCache.GetRandomWorld();
+        }
+        
+        
+        Vector3 start = GameManager.WorldOffsets[worldToSpawnIn];
+        Vector3 offset = new Vector3(Random.Range(-20, 20), 1f, 30);
+        
+        var newEnemyObject = Instantiate(EnemyPrefab, start + offset,
             Quaternion.identity);
         var newEnemy = newEnemyObject.GetComponent<Enemy>();
         newEnemy.lookAtPlayer = Player;
-        newEnemy.world = world;
-        newEnemy.goal = GoalsPerWorld[world];
+        newEnemy.world = skinWorld;
+        newEnemy.goal = GoalsPerWorld[worldToSpawnIn];
+        newEnemy.isPhantom = isPhantom;
         newEnemyObject.transform.SetParent(EnemyParent, true);
-        Enemies.Add(newEnemyObject);
+        Enemies.Add(newEnemy);
     }
 
     public int TotalEnemiesAlive()
@@ -125,7 +150,13 @@ public class EnemyManger : MonoBehaviour
         int total = 0;
         foreach (World world in GameManager.Worlds)
         {
-            total += EnemiesPerWorld[world].Count;
+            foreach(Enemy enemy in EnemiesPerWorld[world])
+            {
+                if (!enemy.isPhantom)
+                {
+                    total += 1;
+                }
+            }
         }
 
         return total;

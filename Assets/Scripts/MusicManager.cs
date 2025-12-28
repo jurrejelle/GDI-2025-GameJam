@@ -33,6 +33,7 @@ public class MusicManager : MonoBehaviour
 
         introSource.loop = false;
         loopSource.loop = true;
+        SetVolume(0.4f);
     }
 
     private void Start()
