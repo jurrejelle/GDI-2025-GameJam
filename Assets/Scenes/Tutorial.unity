@@ -984,20 +984,22 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'You are a multiverse traveler and the apocalypse has broken out. Your
     house is being attacked in three different universes. Protect your house from
-    the enemies and be careful for phantoms!
+    the enemies and be careful of phantoms!
 
 
     Controls:
 
-    WASD - Walking
-    Around
+    Left Mouse - Shoot
 
-    Space - Jumping
+    WASD
+    - Walk Around
+
+    Space - Jump
 
     F/G - Switch Worlds
 
-    Scroll up/down - Switch
-    Guns'
+    Scroll Up/Down
+    - Switch Guns'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
